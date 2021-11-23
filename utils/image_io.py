@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 import skvideo.io
-
+import cv2
 matplotlib.use('agg')
 
 
@@ -247,8 +247,9 @@ def get_image(path, imsize=-1):
             img = img.resize(imsize, Image.BICUBIC)
         else:
             img = img.resize(imsize, Image.ANTIALIAS)
-
+    
     img_np = pil_to_np(img)
+    # img = cv2.resize(img_np, (x//4.2 for x inimg_np.shape[0:2]))
 #    3*460*620
 #    print(np.shape(img_np))
 
@@ -267,7 +268,10 @@ def prepare_image(file_name):
     img_pil = crop_image(img[0], d=32)
 #    img_pil = get_image(file_name, -1)[0]
 #    print(img_pil.size)
-    return pil_to_np(img_pil)
+    h, w = img_pil.size
+    img_pil = img_pil.resize([720,480] if h>w else [480,720])
+    np_img = pil_to_np(img_pil)
+    return np_img
 
 def prepare_gt(file_name, dataset='HSTS'):
     """
@@ -281,8 +285,10 @@ def prepare_gt(file_name, dataset='HSTS'):
     else:
         img_pil = crop_image(get_image(file_name, -1)[0], d=32)
 
-    return pil_to_np(img_pil)
-
+    h, w = img_pil.size
+    img_pil = img_pil.resize([720,480] if h>w else [480,720])
+    np_img = pil_to_np(img_pil)
+    return np_img
 
 def prepare_video(file_name, folder="output/"):
     data = skvideo.io.vread(folder + file_name)

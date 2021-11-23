@@ -1,2 +1,3 @@
 *.pyc
-log/HSTS_SOTS_GT.txt
+*.txt
+output/scratch/SOTS_GT/*.jpg
