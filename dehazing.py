@@ -8,8 +8,14 @@ from utils.imresize import imresize, np_imresize
 from utils.image_io import *
 from utils.file_io import write_log
 from skimage.color import rgb2hsv
-from skimage.measure import compare_psnr
-from skimage.measure import compare_ssim
+try:
+    from skimage.measure import compare_psnr
+except:
+    from skimage.metrics import peak_signal_noise_ratio as compare_psnr
+try:
+    from skimage.measure import compare_ssim
+except:
+    from skimage.metrics import structural_similarity as compare_ssim
 import torch
 import torch.nn as nn
 from net.vae import VAE
