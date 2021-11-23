@@ -16,8 +16,10 @@ from net.vae import VAE
 import numpy as np
 from net.Net import Net
 from options import options
-
-
+from torchvision.transforms import functional as TF
+from torch.cuda.amp import autocast_mode
+import os
+os.environ["CUDA_VISIBLE_DEVICES"]  = "1"
 def get_dark_channel(image, w=15):
     """
     Get the dark channel prior in the (RGB) image data.
@@ -144,7 +146,8 @@ class Dehaze(object):
         optimizer = torch.optim.Adam(self.parameters, lr=self.learning_rate)
         for j in range(self.num_iter):
             optimizer.zero_grad()
-            self._optimization_closure(j)
+            with autocast_mode.autocast():
+                self._optimization_closure(j)
             self._obtain_current_result(j)
             self._plot_closure(j)
             optimizer.step()
@@ -246,28 +249,34 @@ def dehazing(opt):
     elif opt.datasets == 'HSTS':
         hazy_add = 'data/' + opt.datasets + '/synthetic/*.jpg'
         img_num = 10
+    elif opt.datasets == "scratch":
+        hazy_add = 'data/' + opt.datasets + '/blur_test/*.JPG'
     else:
         print('There are no proper datasets')
         return
 
-    print(hazy_add, img_num)
-
     rec_psnr = 0
     rec_ssim = 0
 
-    for item in sorted(glob.glob(hazy_add)):
+    items = glob.glob(hazy_add)
+    img_num = len(items)
+    print(hazy_add, img_num)
+    for item in sorted(items):
         print(item)
         if opt.datasets == 'SOTS' or opt.datasets == 'HSTS':
             name = item.split('.')[0].split('/')[3]
         elif opt.datasets == 'real-world':
             name = item.split('.')[0].split('/')[2]
+        elif opt.datasets == "scratch":
+            name = item.split('.')[0].split('/')[3]
         print(name)
 
         if opt.datasets == 'SOTS':
             gt_add = 'data/' + opt.datasets + '/original/' + name.split('_')[0] + '.png'
         elif opt.datasets == 'HSTS':
             gt_add = 'data/' + opt.datasets + '/original/' + name + '.jpg'
-
+        elif opt.datasets == "scratch":
+            gt_add = 'data/' + opt.datasets+ '/clear_test/' + name + '.JPG'
         hazy_img = prepare_image(item)
         gt_img = prepare_gt(gt_add, dataset=opt.datasets)
 

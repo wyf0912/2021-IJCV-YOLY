@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--cuda', type=int, default=0)
 parser.add_argument('--name', type=str, default="SOTS_GT")
 # parser.add_argument('--datasets', type=str, default="SOTS")
-parser.add_argument('--datasets', type=str, default="HSTS")
+parser.add_argument('--datasets', type=str, default="scratch")
 # parser.add_argument('--datasets', type=str, default="real-world")
 
 parser.add_argument('--clip', type=bool, default=True)
